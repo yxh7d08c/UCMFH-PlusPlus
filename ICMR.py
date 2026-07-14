@@ -5,7 +5,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from evaluate import  calculate_top_map
 from load_dataset import  load_dataset
-from metric import ContrastiveLoss, ContrastiveLossBalanced
+from metric import ContrastiveLossBalanced
 from model import UnimodalTransformer, CrossAttentionFusion, ImageMlp, TextMlp
 from os import path as osp
 from utils import load_checkpoints, save_checkpoints
@@ -66,7 +66,6 @@ class Solver(object):
         self.retrieval_loader = data_loader['retrieval']
               
         # 🆕 使用加权平衡版本的对比学习损失
-        # 原版本：self.ContrastiveLoss = ContrastiveLoss(batch_size=self.batch_size, device=self.device)
         self.ContrastiveLoss = ContrastiveLossBalanced(batch_size=self.batch_size, device=self.device)
         print("✅ Using ContrastiveLossBalanced - Weighted balanced loss from HashNet")
      

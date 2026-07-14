@@ -95,54 +95,6 @@ class CrossAttentionFusion(nn.Module):
         return img_fused, text_fused
 
 
-class FuseTransEncoder(nn.Module):
-    """改进的双流+Cross-Attention编码器 (移除冗余的TransformerEncoder)"""
-    def __init__(self,  num_layers, hidden_size, nhead):
-        super(FuseTransEncoder, self).__init__()
-        # 第一阶段：双流架构 单模态Transformer (学习图像/文本内部关系)
-        self.image_transformer = UnimodalTransformer(d_model=512, nhead=8, num_layers=2, dropout=0.1)
-        self.text_transformer = UnimodalTransformer(d_model=512, nhead=8, num_layers=2, dropout=0.1)
-        
-        # 第二阶段：双向Cross-Attention (替代原来的冗余TransformerEncoder)
-        self.cross_attention = CrossAttentionFusion(d_model=512, nhead=8, dropout=0.1)
-        
-        self.d_model = hidden_size
-        self.sigal_d = int(self.d_model/2)
-       
-    def forward(self, tokens):
-        """
-        前向传播：单模态增强 -> 双向Cross-Attention融合
-        Args:
-            tokens: [1, batch_size, 1024] 或 [batch_size, 1024]
-        Returns:
-            img: [batch_size, 512] 融合后的图像特征
-            txt: [batch_size, 512] 融合后的文本特征
-        """
-        # 处理输入维度 (兼容原有代码的不同输入格式)
-        if tokens.dim() == 3:
-            tokens_reshaped = tokens.reshape(-1, self.d_model)  # [batch_size, 1024]
-        else:
-            tokens_reshaped = tokens  # [batch_size, 1024]
-        
-        # 分离图像和文本特征
-        img_input = tokens_reshaped[:, :self.sigal_d]  # [batch_size, 512]
-        txt_input = tokens_reshaped[:, self.sigal_d:]  # [batch_size, 512]
-        
-        # 第一阶段：单模态特征增强
-        img_enhanced = self.image_transformer(img_input)  # [batch_size, 512]
-        txt_enhanced = self.text_transformer(txt_input)  # [batch_size, 512]
-        
-        # 第二阶段：双向Cross-Attention融合 (替代原来的跨模态融合Transformer)
-        # 图像从文本获取信息，文本从图像获取信息
-        img_fused, txt_fused = self.cross_attention(img_enhanced, txt_enhanced)
-        
-        # L2归一化 (保持与原代码一致)
-        img = normalize(img_fused, p=2, dim=1)  # [batch_size, 512]
-        txt = normalize(txt_fused, p=2, dim=1)  # [batch_size, 512]
-        
-        return img, txt
-
-
 class ImageMlp(nn.Module):
     """图像哈希映射网络"""
     def __init__(self, input_dim=512, hash_lens=64):
