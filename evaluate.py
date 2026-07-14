@@ -2,6 +2,7 @@ import numpy as np
 import scipy.spatial
 from tqdm import tqdm
 
+
 def fx_calc_map_label(image, text, label, k=0, dist_method='L2'):
     if dist_method == 'L2':
         dist = scipy.spatial.distance.cdist(image, text, 'euclidean')
@@ -111,6 +112,7 @@ def calculate_map(qu_B, re_B, qu_L, re_L):
         map = map + map_
     map = map / num_query
     return map
+
 
 
 def calculate_top_map(qu_B, re_B, qu_L, re_L, topk):
