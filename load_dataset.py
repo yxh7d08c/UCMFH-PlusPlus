@@ -24,9 +24,9 @@ def load_dataset(dataset, batch_size):
     '''
         load datasets : mirflickr, mscoco, nus-wide
     '''
-    train_loc = '/home/summer/data/Dataset/'+dataset+'/train.pkl'
-    query_loc = '/home/summer/data/Dataset/'+dataset+'/query.pkl'
-    retrieval_loc = '/home/summer/data/Dataset/'+dataset+'/retrieval.pkl'
+    train_loc = '/home/hyc/paper/faceswap/datasets/'+dataset+'/train.pkl'
+    query_loc = '/home/hyc/paper/faceswap/datasets/'+dataset+'/query.pkl'
+    retrieval_loc = '/home/hyc/paper/faceswap/datasets/'+dataset+'/retrieval.pkl'
 
 
   
